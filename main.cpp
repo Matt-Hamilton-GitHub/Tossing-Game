@@ -87,14 +87,14 @@ public:
  random_device rdevice{};
  
 
-void setPlayersNames(CoinTossingGame *players, int num);
-unsigned int genNum();
-void tossTheCoin(CoinTossingGame *players,int num, int &heads, int &tails,  map<int, int> &res);
-void setDefPoints(CoinTossingGame *players, int num, int points_num, map<int, int> &res);
+void setPlayersNames(CoinTossingGame *players, int num);//sets default name for each player, max number of names it has - 20
+unsigned int genNum();//generates a random number from 0 to 1
+void tossTheCoin(CoinTossingGame *players,int num, int &heads, int &tails,  map<int, int> &res);//
+void setDefPoints(CoinTossingGame *players, int num, int points_num, map<int, int> &res);//sets default pointsfor each player
 void displayPoints(CoinTossingGame *players, int num);
-void displayCurrentPlayers(CoinTossingGame *players, int num);
-void assignPoints(CoinTossingGame *players, int heads, int tails,  map<int, int> &res, int p);
-void getTheWinner(CoinTossingGame *players, int num, vector<int> participants);
+void displayCurrentPlayers(CoinTossingGame *players, int num);//display players who are not eliminated 
+void assignPoints(CoinTossingGame *players, int heads, int tails,  map<int, int> &res, int p);//the algorithm of assigning points after each tossing
+void getTheWinner(CoinTossingGame *players, int num, vector<int> participants);//show the winners of the game / max number of winners is 2
 
 
 
@@ -102,6 +102,7 @@ int main()
 {
 	
 	int MAX_PLAYERS{20};
+	unsigned int MAX_WINNERS{2};
 	
 	cout << "\tWelcome to The Tossing Game\n";
 	cout << "\t***************************\n";
@@ -121,7 +122,8 @@ int main()
 	
 //At the beginning of the game, N players each has M points.
 //user sets the number of points and players 
-	bool gameOver{false};
+
+	bool gameOver{false};//defines the end of the game
 	
 	
 	cout << "Number of players [less than " << MAX_PLAYERS + 1 << " ]: ";
@@ -129,9 +131,9 @@ int main()
 	cout << "Number of points: ";
 	cin >> points_num;
 	
-	CoinTossingGame players[players_num];//here we create an array of classes for each user
+	CoinTossingGame players[players_num];//here we create an array of classes for each user to store number of points and names
 	
-	//below we store all the players that are not eliminated yet to the vector
+	//below we store all the players who are not eliminated yet to the vector
 	for(int index{0}; index < players_num; index++){
 			if(players[index].getStatus() != true)
 			 participants.push_back(index);
@@ -165,8 +167,6 @@ int main()
 		cout << "\t------ \n" << endl;
 		
 		tossTheCoin(players, players_num, numOfHead, numOfTails, results);
-		
-		
 		assignPoints(players,numOfHead, numOfTails, results, p);
 								
 			
@@ -185,10 +185,11 @@ int main()
 		round++;
 		numOfHead = 0;//clear number of heads for the next round
 		numOfTails = 0;//clear number of tails for the next round
-		participants.clear();// clear the vector with the participants
 		
 		
 	// update the vector with the participants 
+	
+	participants.clear();// clear the vector with the participants
 	
 		for(int index{0}; index < players_num; index++){
 			if(players[index].getStatus() != true)
@@ -201,13 +202,13 @@ int main()
 	//finally if the number of remaining participants is less or equal to 2 then the game is over
 	//and also lets set the max number of rounds to be 25
 	
-		if(participants.size() <= 2)
+		if(participants.size() <= MAX_WINNERS)
 			gameOver = true;
 	};
 	
 
 	
-	//dipsaly the winner
+	//dipsaly the winners
 	
 	getTheWinner(players, players_num, participants);
 	
@@ -215,6 +216,8 @@ int main()
 	system("pause");
 	return 0;
 }
+
+
 
 
   unsigned int genNum(){
