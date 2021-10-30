@@ -181,8 +181,6 @@ int main()
 		
 		
 		results.clear();//claer results
-		p+=p;//increase p 
-		round++;
 		numOfHead = 0;//clear number of heads for the next round
 		numOfTails = 0;//clear number of tails for the next round
 		
@@ -202,8 +200,15 @@ int main()
 	//finally if the number of remaining participants is less or equal to 2 then the game is over
 	//and also lets set the max number of rounds to be 25
 	
-		if(participants.size() <= MAX_WINNERS)
+		if(participants.size() <= MAX_WINNERS){
 			gameOver = true;
+			
+		}
+		else{
+		p+=p;//increase p 
+		round++;
+		}
+			
 	};
 	
 
@@ -211,6 +216,9 @@ int main()
 	//dipsaly the winners
 	
 	getTheWinner(players, players_num, participants);
+	cout<< "-----------------------------\n";
+	cout << "The final value of P = " << p << " ****" << endl;
+	cout << "The coin has been tossed " << round << " times ****" << endl;
 	
 	
 	system("pause");
