@@ -52,110 +52,74 @@ using namespace std;
 class CoinTossingGame {
 private:
 
+	string _player_name;
+//as a player gets eliminated from the game, boolean eliminated sets to true and the game shows the player's status
 	bool _eliminated {false};
 
+//the program also keeps the track of all points for each player
 	int _points{0};
-	int _heads{0};
-	int _tails{0};
-	
+
 		
 public: 
 
-//CoinTossingGame(int num_points)
-//:_points(num_points){}
 
 //getters
-	int getPoints(){
-		return _points;
-	}
-	
-	int getHeads(){
-		return _heads;
-	}
-	
-		int getTails(){
-		return _tails;
-	}
-	
-	bool getStatus(){
-		return _eliminated;
-	}
-	
-	//setters
-	
-	void eliminate(){
-		_eliminated = true;
-	}
-	void setPoints(int p){
-		 _points = p;
-	}
-	
-	void setHeads(int h){
-		 _heads = h;
-	}
-	
-	void setTails(int t){
-		_tails = t;
-	}
-	
-	
-	void inc_point(int num){
-		_points+= num;
-	}
-	void inc_heads(){
-		_heads++;
-	}
-	void inc_tails(){
-		_tails++;
-	}
-	
+	int getPoints(){return _points;}
+	string getName(){return _player_name;}
 
+	bool getStatus(){return _eliminated;}
 	
+//setters
 	
-	void dec_point(int num){
-		_points-=num;
-	}
-	void dec_heads(){
-		_heads--;
-	}
-	void dec_tails(){
-		_tails--;
-	}
+	void eliminate(){_eliminated = true;}
+	void setPoints(int p){_points = p;}
+	void setName(string name){_player_name = name;}
 	
-	
+//custom methods
+	void inc_point(int num){_points+= num;}
+	void dec_point(int num){_points-=num;}
+
 	
 };
 
+
+
  random_device rdevice{};
+ 
 
-
- unsigned int tossCoin();
-// void setInPoints(CoinTossingGame p[], int num, int points);
-
-
+void setPlayersNames(CoinTossingGame *players, int num);
+unsigned int tossCoin();
+void setDefPoints(CoinTossingGame *players, int num, int points_num, map<int, int> &res);
 
 
 int main()
 {
 	
+	int MAX_PLAYERS{20};
 	
 	cout << "\tWelcome to The Tossing Game\n";
 	cout << "\t***************************\n";
 	
+	
 	int players_num{0};
 	int points_num{0};
 	int p{1};
+	int round{1};
 	int tossed;
 	int numOfHead{0};
 	int numOfTails{0};
 	
-	vector<int> participants;
+
+       
+	vector<int> participants;//the vector stores the players who are not eliminated 
 	map<int, int> results;
 	
 //At the beginning of the game, N players each has M points.
 //user sets the number of points and players 
 	bool gameOver{false};
-	cout << "Number of players: ";
+	
+	
+	cout << "Number of players [less than " << MAX_PLAYERS + 1 << " ]: ";
 	cin >> players_num;
 	cout << "Number of points: ";
 	cin >> points_num;
@@ -170,14 +134,15 @@ int main()
 		
 	//-------------------------------
 
+//set names
+setPlayersNames(players, players_num);
+
+
 //below we set the initial amount of points for all participants and create an empty map 
 //that will store the results [index - points] for each round
    
-	for(int index{0}; index < players_num; index++){
-			 players[index].setPoints(points_num);
-			 results.insert({index, 0});
+   setDefPoints(players, players_num, points_num, results);
 	
-		}
 	//-------------------------------
 	
 		
@@ -185,25 +150,35 @@ int main()
 
 	for(int index{0}; index < players_num; index++){
 			
+		//players' names are going to be Player 1, Player 2, and so on
+		//Because I just want to make the program more flexible, so users can define the number of players 
+		//then number can be almost infinitely large to make the game more interesting and the user doesn't have to tape in a name for each user
+		//I hope it is ok, if not I can change it
+
+		
 			if(players[index].getStatus() != true)
-				cout << "\tPlayer " << index + 1 << " total points: [ " <<players[index].getPoints() << " ]\n"; 
+				cout << "\t " << players[index].getName() << " total points: [ " <<players[index].getPoints() << " ]\n"; 
 		}	
 		
 //---------------		
 	
 	while(gameOver != true){//the game starts and runs till gameOver equals to true
 		
-		cout << "\n\tRound " << p << endl;//display each round
-		cout << "\n\t------ " << endl;
+		cout << "\n\tRound " << round << endl;//display each round
+		cout << "\t------ \n" << endl;
 	
 	//
 	
 		for(int index{0}; index < players_num; index++){
 			
 			if(players[index].getStatus() == false){			
-			cout << "\tPlayer " << index + 1 << " Tosses The Coin ... : "; 
+			cout << "\t " << players[index].getName() << " Tosses The Coin ... : "; 
 			tossed = tossCoin();//tossing the coin
-			cout << tossed << endl;
+			
+			if(tossed == 0)
+				cout << "Tail" << endl;
+			else
+				cout << "Head" << endl;
 			
 			
 			results[index] = tossed; //store the result for each index that represents a player
@@ -216,7 +191,6 @@ int main()
 					numOfHead++;
 			}	
 		}	
-		
 		
 										//***** Cases ******
 										
@@ -268,7 +242,7 @@ int main()
 		
 		for(int index{0}; index < players_num; index++){
 			if(players[index].getStatus() != true)
-				cout << "\tPlayer " << index + 1 << " total points: [ " <<players[index].getPoints() << " ]\n"; 
+				cout << "\t" << players[index].getName() << " total points: [ " <<players[index].getPoints() << " ]\n"; 
 		
 		}	
 		
@@ -278,13 +252,14 @@ int main()
 		for(int index{0}; index < players_num; index++){
 			if(players[index].getPoints() <= 0){
 				players[index].eliminate();
-				cout << "***** Player # " << index+1 << " - eliminated" << endl;
+				cout << "***** " << players[index].getName() << " - eliminated" << endl;
 			}
 		}
 		
 		
 		results.clear();//claer results
-		p++;//increase p (round)
+		p+=p;//increase p 
+		round++;
 		numOfHead = 0;//clear number of heads for the next round
 		numOfTails = 0;//clear number of tails for the next round
 		participants.clear();// clear the vector with the participants
@@ -301,8 +276,9 @@ int main()
 	//------------------------------------------
 	
 	//finally if the number of remaining participants is less or equal to 2 then the game is over
+	//and also lets set the max number of rounds to be 25
 	
-		if(participants.size() <= 2 )
+		if(participants.size() <= 2 || p == 25)
 			gameOver = true;
 	};
 	
@@ -311,14 +287,36 @@ int main()
 	cout << "\t***************************\n";
 	cout << "\t******* Game Over *********\n";
 	
-	//display winners
+	
+	//dipsaly the winner
+	
+	int winner_index;//holds the winner's index
+	bool greater;
+	
+	for(int outer {0}; outer < players_num; outer++){
+		greater = true;
+		for(int inner{0}; inner < players_num; inner++){
+			if(players[outer].getPoints() >= players[inner].getPoints() && greater == true){
+				winner_index = outer;
+			}else{
+				greater = false;
+			}
+			}
+			if(greater == true)
+				break;
+		}
+	
+	cout << "The Winner of The Game is " << players[winner_index].getName() << " : " 
+	<< players[winner_index].getPoints() << " points "<< endl;
+	
+	//display the remaining winners
 	
 	
-	cout << "\n\n\tWinners: " ;
+	cout << "\n\n\t Other Winners: " ;
 	
 	for(int index{0}; index < players_num; index++){
-		if(players[index].getStatus() == false)
-			cout << "Player #" << index +1 << ", ";
+		if(players[index].getStatus() == false && index != winner_index)
+			cout << "\n\t" << players[index].getName()  << ", points - " << players[index].getPoints() ;
 		}
 	cout << endl;
 	
@@ -329,13 +327,33 @@ int main()
 }
 
 
-
-
   unsigned int tossCoin(){
 	default_random_engine num{rdevice()};
 	uniform_int_distribution< unsigned int> randomNum{0,1};
 	
 	
 	return randomNum(num);
+	
+}
+
+void setPlayersNames(CoinTossingGame *players, int num){
+	
+	string def_players_names[20] = {"Liam","Olivia","Noah","Emma","Oliver","Ava","William","Sophia","Elijah", "Isabella",
+	"James","Charlotte","Benjamin","Amelia","Lucas","Mia","Mason","Harper","Ethan","Evelyn"};
+	
+	for(int count{0}; count  < num; count++){
+		players[count].setName(def_players_names[count]);
+	}
+	
+};
+
+
+void setDefPoints(CoinTossingGame *players, int num, int points_num, map<int, int> &res){
+	
+	for(int index{0}; index < num; index++){
+			 players[index].setPoints(points_num);
+			 res.insert({index, 0});
+	
+		}
 	
 }
